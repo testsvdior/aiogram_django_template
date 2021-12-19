@@ -1,17 +1,28 @@
+from typing import List
+
 import aiohttp
 
-from utils import prepare_user_data
 from settings import BACKEND_URL
 
 
-async def create_user_query(data: dict):
-    data = await prepare_user_data(data=data)
+async def create_user_query(data: dict) -> int:
+    """
+    Запрос на создание нового пользователя.
+    :param data: user data
+    :return: response status code
+    """
     async with aiohttp.ClientSession() as session:
-        async with session.post(BACKEND_URL + 'api/user',
-                                data=data) as response:
-            # todo - запись логов в файл
-            print("Status:", response.status)
-            print("Content-type:", response.headers['content-type'])
+        async with session.post(
+                BACKEND_URL + 'api/user/',
+                data=data,
+        ) as response:
+            return response.status
 
-            html = await response.text()
-            print("Body:", html, "...")
+
+async def get_users_list() -> List:
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+                BACKEND_URL + 'api/users/',
+        ) as response:
+            response_data = await response.json()
+            return response_data

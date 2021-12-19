@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 
 async def prepare_user_data(data: dict) -> Dict[str, str]:
@@ -15,3 +15,11 @@ async def prepare_user_data(data: dict) -> Dict[str, str]:
         'language_code': data.get('language_code'),
     }
     return correct_dict
+
+
+async def prepare_users_list(data: list) -> List:
+    users = []
+    users.extend(
+        [f'👤<a href="tg://user?id={i["user_id"]}">{i["first_name"]} {i.get("last_name", " ")}</a>' for i in data]
+    )
+    return users
