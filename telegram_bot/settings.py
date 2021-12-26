@@ -15,3 +15,7 @@ BOT_TOKEN = env('BOT_TOKEN')
 
 
 BACKEND_URL = 'http://localhost:8000/'
+
+# authentication credentials
+REQUEST_USER_LOGIN: str = env('REQUEST_USER_LOGIN')
+REQUEST_USER_PASSWORD: str = env('REQUEST_USER_PASSWORD')
