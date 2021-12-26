@@ -1,10 +1,7 @@
 from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
-from rest_framework.authtoken.models import Token
 from django.contrib.auth import get_user_model
 from rest_framework import status
-
-from telegram.models import TelegramUser
 
 User = get_user_model()
 

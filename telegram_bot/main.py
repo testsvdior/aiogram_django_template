@@ -1,11 +1,12 @@
 import logging
 
 from aiogram import Bot, Dispatcher, executor, types
+from aiogram.utils import exceptions
 
-from requests import create_user_query, get_users_list, get_jwt_credentials
-from settings import BOT_TOKEN
+from requests import create_user_query, get_users_list
+from settings import BOT_TOKEN, ADMIN_LIST
 from utils import prepare_user_data, prepare_users_list
-
+from loader import auth
 
 # Initialize bot and dispatcher
 bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
@@ -38,15 +39,25 @@ async def cmd_users(message: types.Message):
     await message.answer(text='\n'.join(users))
 
 
-# todo - временное решение.
-@dp.message_handler(commands='test')
-async def cmd_users(message: types.Message):
+async def on_startup(dispatcher: Dispatcher) -> None:
     """
-    This handler generate JWT.
-    :param message: Telegram message with "/users" command
+    Function starting on startup bot.
+    :param dispatcher: aiogram.Dispatcher
+    :return: None
     """
-    await get_jwt_credentials()
-    await message.answer(text='testing')
+    await auth.auth_user()
+    bot_commands = [
+        types.BotCommand(command="/start", description="Register,"),
+        types.BotCommand(command="/users", description="Show bot users."),
+    ]
+    await bot.set_my_commands(bot_commands)
+    for admin in ADMIN_LIST:
+        try:
+            await bot.send_message(chat_id=admin, text='Bot on startup.', )
+        except exceptions.ChatNotFound as e:
+            # todo - create logger that write exception to file.
+            print(f'{admin} {e}'.lower())
+
 
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=True)
+    executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
