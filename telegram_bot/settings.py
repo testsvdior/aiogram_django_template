@@ -21,3 +21,6 @@ BACKEND_URL: str = 'http://localhost:8000/'
 # authentication credentials
 REQUEST_USER_LOGIN: str = env('REQUEST_USER_LOGIN')
 REQUEST_USER_PASSWORD: str = env('REQUEST_USER_PASSWORD')
+
+# JWT settings
+ACCESS_TOKEN_LIFETIME: int = env.int('ACCESS_TOKEN_LIFETIME') - 1

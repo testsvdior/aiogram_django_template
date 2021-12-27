@@ -2,9 +2,11 @@ import logging
 
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.utils import exceptions
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
 
 from requests import create_user_query, get_users_list
-from settings import BOT_TOKEN, ADMIN_LIST
+from settings import BOT_TOKEN, ADMIN_LIST, ACCESS_TOKEN_LIFETIME
 from utils import prepare_user_data, prepare_users_list
 from loader import auth
 
@@ -13,6 +15,13 @@ bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
 dp = Dispatcher(bot)
 
 logging.basicConfig(level=logging.INFO)
+
+scheduler = AsyncIOScheduler()
+
+
+def schedule_jobs() -> None:
+    """Queues that update access token."""
+    scheduler.add_job(auth.refresh_token, 'interval', minutes=ACCESS_TOKEN_LIFETIME)
 
 
 @dp.message_handler(chat_type=types.ChatType.PRIVATE, commands="start")
@@ -57,7 +66,9 @@ async def on_startup(dispatcher: Dispatcher) -> None:
         except exceptions.ChatNotFound as e:
             # todo - create logger that write exception to file.
             print(f'{admin} {e}'.lower())
+    schedule_jobs()
 
 
 if __name__ == "__main__":
+    scheduler.start()
     executor.start_polling(dp, skip_updates=True, on_startup=on_startup)
