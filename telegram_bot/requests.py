@@ -33,3 +33,16 @@ async def get_users_list() -> List:
         ) as response:
             response_data = await response.json()
             return response_data
+
+
+async def get_user_detail(user_id: str):
+    """
+    GET query to endpoint that return user detail.
+    """
+    async with aiohttp.ClientSession() as session:
+        async with session.get(
+                BACKEND_URL + f'api/user/{user_id}',
+                headers=await auth.get_auth_header(),
+        ) as response:
+            response_data = await response.json()
+            return response_data

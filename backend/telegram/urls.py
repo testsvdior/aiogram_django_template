@@ -1,8 +1,9 @@
 from django.urls import path
 
-from telegram.views import TelegramUserCreateAPIView, TelegramUsersListAPIView
+from telegram import views
 
 urlpatterns = [
-    path('user/', TelegramUserCreateAPIView.as_view(), name='create-user'),
-    path('users/', TelegramUsersListAPIView.as_view(), name='users-list'),
+    path('user/', views.TelegramUserCreateAPIView.as_view(), name='create-user'),
+    path('user/<int:pk>', views.TelegramUserGetAPIView.as_view(), name='user-detail'),
+    path('users/', views.TelegramUsersListAPIView.as_view(), name='users-list'),
 ]
