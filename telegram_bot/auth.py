@@ -20,8 +20,8 @@ class AuthBackend:
         """Method get and set auth token."""
         async with aiohttp.ClientSession() as session:
             async with session.post(self._token_url, data=self._credentials) as response:
-                credentials = await response.json()
                 assert response.status, 200
+                credentials = await response.json()
                 self._refresh_token, self._access_token = (value for value in credentials.values())
 
     async def refresh_token(self) -> None:
@@ -29,8 +29,8 @@ class AuthBackend:
         data = {"refresh": self._refresh_token}
         async with aiohttp.ClientSession() as session:
             async with session.post(self._refresh_token_url, data=data) as response:
-                credentials = await response.json()
                 assert response.status, 200
+                credentials = await response.json()
                 self._access_token = credentials['access']
 
     async def get_auth_header(self) -> Dict[str, str]:

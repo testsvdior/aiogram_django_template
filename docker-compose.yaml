@@ -1,0 +1,25 @@
+version: '3.7'
+services:
+  django:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/django
+    restart: on-failure
+    command: bash -c 'python manage.py migrate; python manage.py loaddata fixtures/data.json; python manage.py runserver 0.0.0.0:8000'
+    ports:
+      - 8000:8000
+
+  aiogram:
+    container_name: bot
+    build:
+      context: telegram_bot
+      dockerfile: Dockerfile
+    environment:
+      - BACKEND_URL=http://django:8000/
+    env_file:
+      - telegram_bot/.env
+    depends_on:
+      - django
