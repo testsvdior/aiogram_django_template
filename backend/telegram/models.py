@@ -26,7 +26,7 @@ class TelegramUser(models.Model):
         verbose_name_plural = 'TG users'
 
     def __str__(self):
-        return self.username if self.username else self.user_id
+        return self.username if self.username else str(self.user_id)
 
     def save(self, *args, **kwargs):
         self.deep_link = f't.me/{self.username}' if self.username else None

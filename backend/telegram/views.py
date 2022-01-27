@@ -3,6 +3,7 @@ from rest_framework import permissions
 
 from telegram.models import TelegramUser
 from telegram import serializers
+from telegram.paginations import UsersPagination
 
 
 class TelegramUserCreateAPIView(CreateAPIView):
@@ -14,14 +15,14 @@ class TelegramUserCreateAPIView(CreateAPIView):
 
 class TelegramUsersListAPIView(ListAPIView):
     """View that return bot users."""
-    # todo - создать endpoint который возвращает список пользователей + пагинация
     serializer_class = serializers.TelegramUsersList
     queryset = TelegramUser.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
+    pagination_class = UsersPagination
 
 
 class TelegramUserGetAPIView(RetrieveUpdateAPIView):
     """TelegramUser GET, PATCH, PUT view."""
     serializer_class = serializers.TelegramUserDetailSerializer
     queryset = TelegramUser.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.AllowAny,)
