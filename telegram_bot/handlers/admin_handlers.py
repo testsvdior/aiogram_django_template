@@ -72,6 +72,7 @@ async def exit_from_state(call: types.CallbackQuery, state: FSMContext):
     :param state: state.
     """
     await state.finish()
+    await call.message.delete_reply_markup()
     await call.answer('You are exit from state')
 
 
@@ -95,4 +96,3 @@ async def cmd_user_detail(message: types.Message):
         await message.answer("You didn't send user id!")
     except CommandArgumentError:
         await message.answer('ID must contains only digits.')
-

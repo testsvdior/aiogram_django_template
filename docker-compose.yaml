@@ -7,7 +7,6 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./backend:/django
-    restart: on-failure
     command: bash -c 'python manage.py migrate; python manage.py loaddata fixtures/data.json; python manage.py runserver 0.0.0.0:8000'
     ports:
       - 8000:8000
