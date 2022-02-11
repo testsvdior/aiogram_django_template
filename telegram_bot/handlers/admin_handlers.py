@@ -1,4 +1,5 @@
 from typing import Dict
+from asyncio import sleep
 
 from aiogram import types
 from aiogram.dispatcher import FSMContext
@@ -10,7 +11,7 @@ from requests import get_users_data
 from utils import prepare_users_list
 from settings import ADMIN_LIST
 from handlers.exceptions import CommandArgumentError
-from keyboards.inline import get_paginate_keyboard
+from keyboards.inline import get_paginate_keyboard, get_exit_keyboard
 
 
 async def send_users(message: types.Message, state: FSMContext, payload: Dict = None):
@@ -75,6 +76,8 @@ async def exit_from_state(call: types.CallbackQuery, state: FSMContext):
     await state.finish()
     await call.message.delete_reply_markup()
     await call.answer('You are exit from state')
+    await sleep(1)
+    await call.message.delete()
 
 
 @dp.message_handler(lambda m: m.text.startswith('/'), state='paginate')
@@ -99,3 +102,19 @@ async def cmd_user_detail(message: types.Message):
         await message.answer("You didn't send user id!")
     except CommandArgumentError:
         await message.answer('ID must contains only digits.')
+
+
+@dp.message_handler(commands='message', user_id=ADMIN_LIST)
+async def cmd_message(message: types.Message, state: FSMContext) -> None:
+    answer = [
+        'Send me message, that you want to send users.',
+        'To cancel click the button below',
+    ]
+    await message.answer('\n'.join(answer), reply_markup=await get_exit_keyboard())
+    await state.set_state('message')
+
+
+@dp.message_handler(state='message')
+async def send_messages(message: types.Message, state: FSMContext):
+    await message.answer('Щас отправим)')
+    await state.finish()

@@ -21,3 +21,11 @@ async def get_paginate_keyboard(next_page: str = None, previous_page: str = None
         ])
     return keyboard
 
+
+async def get_exit_keyboard() -> InlineKeyboardMarkup:
+    """
+    Function return keyboard that using for exit from any state.
+    """
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text='EXIT', callback_data='exit')]])
+    return keyboard
