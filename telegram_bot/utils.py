@@ -22,7 +22,7 @@ async def prepare_users_list(data: list) -> List:
     Фунцкия форматирует ответ со списком пользователей в HTML формат с линком на каждого пользователя.
     :param data: список пользователей.
     """
-    users = []
+    users = ['<b>Users list</b>\n']
     users.extend(
         [f'👤<a href="tg://user?id={u["user_id"]}">{u["first_name"]} {u.get("last_name", " ")}</a> /{u["user_id"]}'
          for u in data]
@@ -32,8 +32,9 @@ async def prepare_users_list(data: list) -> List:
 
 async def prepare_user_detail(data: dict) -> str:
     """
-    Функция подготавливает ответ пользователя.
-    :param data: данные пользователя.
+    Function prepare user data for answer.
+    :param data: User data.
     """
-    answer = [f'{key}: {value}' for key, value in data.items()]
+    answer = ['<b>User detail</b>\n']
+    answer.extend([f'<b>{key}</b>: <code>{value}</code>' for key, value in data.items()])
     return '\n'.join(answer)
