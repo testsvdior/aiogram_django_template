@@ -30,7 +30,7 @@ async def send_users(message: types.Message, state: FSMContext, payload: Dict = 
         users = await prepare_users_list(data=data['results'])
         message_data = {
             'text': '\n'.join(users),
-            'reply_markup': get_paginate_keyboard(next_page=data['next'], previous_page=data['previous']),
+            'reply_markup': await get_paginate_keyboard(next_page=data['next'], previous_page=data['previous']),
         }
         if state_data.get('edit', False):
             await message.edit_text(**message_data)

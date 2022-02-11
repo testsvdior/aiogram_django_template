@@ -1,7 +1,7 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-def get_paginate_keyboard(next_page: str = None, previous_page: str = None) -> InlineKeyboardMarkup:
+async def get_paginate_keyboard(next_page: str = None, previous_page: str = None) -> InlineKeyboardMarkup:
     """
     Function return inline keyboard with paginate.
     """
@@ -20,3 +20,4 @@ def get_paginate_keyboard(next_page: str = None, previous_page: str = None) -> I
             ],
         ])
     return keyboard
+
