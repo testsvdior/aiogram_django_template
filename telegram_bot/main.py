@@ -4,7 +4,7 @@ from aiogram import Dispatcher, executor, types
 from aiogram.utils import exceptions
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
-import handlers
+import handlers  # need import if we want to register our handlers
 from settings import ADMIN_LIST, ACCESS_TOKEN_LIFETIME
 from loader import auth, bot, dp
 

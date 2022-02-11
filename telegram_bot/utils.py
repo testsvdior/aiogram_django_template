@@ -24,7 +24,8 @@ async def prepare_users_list(data: list) -> List:
     """
     users = []
     users.extend(
-        [f'👤<a href="tg://user?id={i["user_id"]}">{i["first_name"]} {i.get("last_name", " ")}</a>' for i in data]
+        [f'👤<a href="tg://user?id={u["user_id"]}">{u["first_name"]} {u.get("last_name", " ")}</a> /{u["user_id"]}'
+         for u in data]
     )
     return users
 

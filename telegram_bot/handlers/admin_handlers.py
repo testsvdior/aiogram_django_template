@@ -4,9 +4,10 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.utils import exceptions
 
+from handlers.services import get_detail_info
 from loader import dp
-from requests import get_users_data, get_user_detail
-from utils import prepare_users_list, prepare_user_detail
+from requests import get_users_data
+from utils import prepare_users_list
 from settings import ADMIN_LIST
 from handlers.exceptions import CommandArgumentError
 from keyboards.inline import get_paginate_keyboard
@@ -76,22 +77,24 @@ async def exit_from_state(call: types.CallbackQuery, state: FSMContext):
     await call.answer('You are exit from state')
 
 
+@dp.message_handler(lambda m: m.text.startswith('/'), state='paginate')
 @dp.message_handler(commands='detail', user_id=ADMIN_LIST)
 async def cmd_user_detail(message: types.Message):
     """
     Handler return user detail info.
     Example:
         "/detail 111222333" - will return info about user with ID 11122333
+        "/111222333" will work when admin click on the state paginate
 
     :param message: message with command from Telegram.
     """
     try:
-        argument: str = message.get_args()
-        if not argument.isdigit():
-            raise CommandArgumentError
-        result = await get_user_detail(user_id=argument)
-        answer = await prepare_user_detail(result)
-        await message.reply(answer)
+        if message.text.startswith('/'):
+            user_id = message.text[1:]
+        else:
+            user_id: str = message.get_args()
+        answer = await get_detail_info(user_id=user_id)
+        await message.answer(answer)
     except exceptions.MessageTextIsEmpty:
         await message.answer("You didn't send user id!")
     except CommandArgumentError:

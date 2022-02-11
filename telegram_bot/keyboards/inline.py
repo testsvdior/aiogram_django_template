@@ -15,7 +15,7 @@ def get_paginate_keyboard(next_page: str = None, previous_page: str = None) -> I
         inline_keyboard=[
             [
                 InlineKeyboardButton(text=f'{previous_page}', callback_data=f'page={previous_page}'),
-                InlineKeyboardButton(text=f'EXIT', callback_data=f'exit'),
+                InlineKeyboardButton(text='EXIT', callback_data='exit'),
                 InlineKeyboardButton(text=f'{next_page}', callback_data=f'page={next_page}')
             ],
         ])
