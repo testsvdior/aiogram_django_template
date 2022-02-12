@@ -2,6 +2,7 @@ from typing import Dict, Union, List
 
 import aiohttp
 
+from handlers.exceptions import NotFound
 from settings import BACKEND_URL
 from loader import auth
 
@@ -50,4 +51,6 @@ async def get_user_detail(user_id: str) -> Dict:
                 headers=await auth.get_auth_header(),
         ) as response:
             response_data = await response.json()
+            if response.status == 404:
+                raise NotFound
             return response_data

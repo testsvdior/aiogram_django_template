@@ -10,7 +10,7 @@ from loader import dp, bot
 from requests import get_users
 from utils import prepare_users_list
 from settings import ADMIN_LIST
-from handlers.exceptions import CommandArgumentError
+from handlers.exceptions import CommandArgumentError, NotFound
 from keyboards.inline import get_paginate_keyboard, get_exit_keyboard
 
 
@@ -91,7 +91,7 @@ async def cmd_user_detail(message: types.Message):
     :param message: message with command from Telegram.
     """
     try:
-        if message.text.startswith('/'):
+        if message.text[1:].isdigit():
             user_id = message.text[1:]
         else:
             user_id: str = message.get_args()
@@ -101,6 +101,8 @@ async def cmd_user_detail(message: types.Message):
         await message.answer("You didn't send user id!")
     except CommandArgumentError:
         await message.answer('ID must contains only digits.')
+    except NotFound:
+        await message.answer('User was not found.')
 
 
 @dp.message_handler(commands='message', user_id=ADMIN_LIST)
