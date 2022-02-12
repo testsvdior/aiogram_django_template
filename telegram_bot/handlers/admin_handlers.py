@@ -7,7 +7,7 @@ from aiogram.utils import exceptions
 
 from handlers.services import get_detail_info, send_message
 from loader import dp, bot
-from requests import get_users_data
+from requests import get_users
 from utils import prepare_users_list
 from settings import ADMIN_LIST
 from handlers.exceptions import CommandArgumentError
@@ -24,7 +24,7 @@ async def send_users(message: types.Message, state: FSMContext, payload: Dict = 
     :param payload: data for paginate users-list.
     """
     state_data: Dict = await state.get_data()
-    data = await get_users_data(payload=payload)
+    data = await get_users(payload=payload)
     if data['count'] == 0:
         await message.answer('We don\'t have any users.')
     else:
@@ -96,7 +96,7 @@ async def cmd_user_detail(message: types.Message):
         else:
             user_id: str = message.get_args()
         answer = await get_detail_info(user_id=user_id)
-        await message.answer(answer)
+        await message.answer(answer, reply_markup=await get_exit_keyboard())
     except exceptions.MessageTextIsEmpty:
         await message.answer("You didn't send user id!")
     except CommandArgumentError:
@@ -117,7 +117,7 @@ async def cmd_message(message: types.Message, state: FSMContext) -> None:
 async def state_message(message: types.Message, state: FSMContext):
     await state.finish()
     await message.answer('Starting to send messages.')
-    users_data = await get_users_data(payload={'only_id': 1})
+    users_data = await get_users(payload={'only_id': 1})
     count = 0
     for user in users_data:
         if await send_message(user_id=user['user_id'], message=message):
