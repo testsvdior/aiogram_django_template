@@ -13,9 +13,13 @@ class TelegramUserCreateAPIView(CreateAPIView):
 
 class TelegramUsersListAPIView(ListAPIView):
     """View that return bot users."""
-    serializer_class = serializers.TelegramUsersList
     queryset = TelegramUser.objects.all()
     pagination_class = UsersPagination
+
+    def get_serializer_class(self):
+        if self.request.GET.get('only_id'):
+            return serializers.TelegramUserIDSerializer
+        return serializers.TelegramUsersList
 
 
 class TelegramUserGetAPIView(RetrieveUpdateAPIView):
