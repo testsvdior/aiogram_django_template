@@ -5,8 +5,8 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.utils import exceptions
 
-from handlers.services import get_detail_info
-from loader import dp
+from handlers.services import get_detail_info, send_message
+from loader import dp, bot
 from requests import get_users_data
 from utils import prepare_users_list
 from settings import ADMIN_LIST
@@ -38,7 +38,6 @@ async def send_users(message: types.Message, state: FSMContext, payload: Dict = 
         else:
             await message.answer(f'Count of users: {data["count"]}')
             await message.answer(**message_data)
-        # write message ID to state data
         await state.set_data({'edit': True})
         await state.set_state('paginate')
 
@@ -50,7 +49,7 @@ async def cmd_users(message: types.Message, state: FSMContext):
     :param message: Telegram message with "/users" command.
     :param state: state that we create to user.
     """
-    await send_users(message, state=state)
+    await send_users(message, state=state, payload={'page_size': 10, 'p': 1})
 
 
 @dp.callback_query_handler(lambda c: c.data.startswith('page'), state='paginate')
@@ -62,7 +61,7 @@ async def users_paginate(call: types.CallbackQuery, state: FSMContext):
     """
     page = call.data.split('=')[1]
     if page.isdigit():
-        await send_users(call.message, state=state, payload={'p': page})
+        await send_users(call.message, state=state, payload={'page_size': 10, 'p': page})
     else:
         await call.answer('Inactive keyboard')
 
@@ -115,6 +114,13 @@ async def cmd_message(message: types.Message, state: FSMContext) -> None:
 
 
 @dp.message_handler(state='message')
-async def send_messages(message: types.Message, state: FSMContext):
-    await message.answer('Щас отправим)')
+async def state_message(message: types.Message, state: FSMContext):
     await state.finish()
+    await message.answer('Starting to send messages.')
+    users_data = await get_users_data(payload={'only_id': 1})
+    count = 0
+    for user in users_data:
+        if await send_message(user_id=user['user_id'], message=message):
+            count += 1
+    for admin in ADMIN_LIST:
+        await bot.send_message(admin, text=f'Sent {count} of {len(users_data)} messages.')

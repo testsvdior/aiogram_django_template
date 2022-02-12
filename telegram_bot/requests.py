@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union, List
 
 import aiohttp
 
@@ -21,7 +21,7 @@ async def create_user_query(data: dict) -> int:
             return response.status
 
 
-async def get_users_data(payload: Dict = None) -> Dict:
+async def get_users_data(payload: Dict = None) -> Union[Dict, List[Dict]]:
     """
     Function return telegram users list from backend.
     :param payload: request params.
