@@ -9,7 +9,7 @@ from requests import get_user_detail
 from utils import prepare_user_detail
 
 
-async def get_detail_info(user_id: str):
+async def get_detail_info(user_id: str) -> str:
     """Function return user detail data."""
     if not user_id.isdigit():
         raise CommandArgumentError
@@ -18,7 +18,7 @@ async def get_detail_info(user_id: str):
     return answer
 
 
-async def send_message(user_id: int, message: types.Message):
+async def send_message(user_id: int, message: types.Message) -> bool:
     """
     Function send message message copy to Telegram bot user.
     :param user_id: ID of Telegram user.

@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Union, List
 from asyncio import sleep
 
 from aiogram import types
@@ -7,11 +7,11 @@ from aiogram.utils import exceptions
 
 from handlers.services import get_detail_info, send_message
 from loader import dp, bot
-from requests import get_users_data
+from requests import get_users
 from utils import prepare_users_list
 from settings import ADMIN_LIST
-from handlers.exceptions import CommandArgumentError
-from keyboards.inline import get_paginate_keyboard, get_exit_keyboard
+from handlers.exceptions import CommandArgumentError, NotFound
+from keyboards.inline import get_paginate_keyboard, get_exit_keyboard, get_user_detail_keyboard
 
 
 async def send_users(message: types.Message, state: FSMContext, payload: Dict = None):
@@ -24,7 +24,7 @@ async def send_users(message: types.Message, state: FSMContext, payload: Dict = 
     :param payload: data for paginate users-list.
     """
     state_data: Dict = await state.get_data()
-    data = await get_users_data(payload=payload)
+    data = await get_users(payload=payload)
     if data['count'] == 0:
         await message.answer('We don\'t have any users.')
     else:
@@ -81,7 +81,7 @@ async def exit_from_state(call: types.CallbackQuery, state: FSMContext):
 
 @dp.message_handler(lambda m: m.text.startswith('/'), state='paginate')
 @dp.message_handler(commands='detail', user_id=ADMIN_LIST)
-async def cmd_user_detail(message: types.Message):
+async def cmd_user_detail(message: types.Message, state: FSMContext):
     """
     Handler return user detail info.
     Example:
@@ -89,35 +89,50 @@ async def cmd_user_detail(message: types.Message):
         "/111222333" will work when admin click on the state paginate
 
     :param message: message with command from Telegram.
+    :param state: FSMContext - we need write here user_id of current user.
     """
     try:
-        if message.text.startswith('/'):
+        if message.text[1:].isdigit():
             user_id = message.text[1:]
         else:
             user_id: str = message.get_args()
         answer = await get_detail_info(user_id=user_id)
-        await message.answer(answer)
+        await message.answer(answer, reply_markup=await get_user_detail_keyboard())
+        await state.set_data({'users_data': [{'user_id': user_id}]})
     except exceptions.MessageTextIsEmpty:
         await message.answer("You didn't send user id!")
     except CommandArgumentError:
         await message.answer('ID must contains only digits.')
+    except NotFound:
+        await message.answer('User was not found.')
 
 
+@dp.callback_query_handler(lambda c: c.data == 'message', state='*')
 @dp.message_handler(commands='message', user_id=ADMIN_LIST)
-async def cmd_message(message: types.Message, state: FSMContext) -> None:
+async def cmd_message(action: Union[types.Message, types.CallbackQuery], state: FSMContext) -> None:
     answer = [
         'Send me message, that you want to send users.',
         'To cancel click the button below',
     ]
-    await message.answer('\n'.join(answer), reply_markup=await get_exit_keyboard())
+    # проверяем это келбек или сообщение
+    if isinstance(action, types.CallbackQuery):
+        await action.message.delete_reply_markup()
+        await action.message.answer('\n'.join(answer), reply_markup=await get_exit_keyboard())
+    else:
+        await action.answer('\n'.join(answer), reply_markup=await get_exit_keyboard())
     await state.set_state('message')
 
 
 @dp.message_handler(state='message')
 async def state_message(message: types.Message, state: FSMContext):
-    await state.finish()
     await message.answer('Starting to send messages.')
-    users_data = await get_users_data(payload={'only_id': 1})
+    if await state.get_data('users_data'):
+        state_data: Dict = await state.get_data()
+        users_data: List[Dict[str, int]] = state_data.get('users_data')
+        await state.set_state('paginate')
+    else:
+        users_data: List[Dict[str, int]] = await get_users(payload={'only_id': 1})
+        await state.finish()
     count = 0
     for user in users_data:
         if await send_message(user_id=user['user_id'], message=message):

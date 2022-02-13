@@ -5,11 +5,8 @@ async def get_paginate_keyboard(next_page: str = None, previous_page: str = None
     """
     Function return inline keyboard with paginate.
     """
-    # http://0.0.0.0:8000/api/users/?p=2&page_size=10
     next_page = next_page.split('p=')[1][:1] if next_page else '❌'
 
-    # http://0.0.0.0:8000/api/users/?page_size=10
-    # http://0.0.0.0:8000/api/users/?p=2&page_size=10
     if previous_page:
         previous_page = '1' if previous_page.endswith('/?page_size=10') else previous_page.split('p=')[1][0]
     else:
@@ -32,4 +29,18 @@ async def get_exit_keyboard() -> InlineKeyboardMarkup:
     """
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[[InlineKeyboardButton(text='EXIT', callback_data='exit')]])
+    return keyboard
+
+
+async def get_user_detail_keyboard():
+    """
+    Function return keyboard for user detail flow.
+    """
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+                [InlineKeyboardButton(text='SEND MESSAGE', callback_data='message')],
+                [InlineKeyboardButton(text='BLOCK', callback_data='block')],
+                [InlineKeyboardButton(text='EXIT', callback_data='exit')],
+        ]
+    )
     return keyboard
