@@ -30,3 +30,17 @@ async def get_exit_keyboard() -> InlineKeyboardMarkup:
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[[InlineKeyboardButton(text='EXIT', callback_data='exit')]])
     return keyboard
+
+
+async def get_user_detail_keyboard():
+    """
+    Function return keyboard for user detail flow.
+    """
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+                [InlineKeyboardButton(text='SEND MESSAGE', callback_data='message')],
+                [InlineKeyboardButton(text='BLOCK', callback_data='block')],
+                [InlineKeyboardButton(text='EXIT', callback_data='exit')],
+        ]
+    )
+    return keyboard
