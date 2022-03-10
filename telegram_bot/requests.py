@@ -15,7 +15,7 @@ async def create_user_query(data: Dict) -> int:
     """
     async with aiohttp.ClientSession() as session:
         async with session.post(
-                BACKEND_URL + 'api/user/',
+                BACKEND_URL + 'api/users/',
                 data=data,
                 headers=await auth.get_auth_header(),
         ) as response:

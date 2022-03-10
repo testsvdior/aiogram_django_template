@@ -6,7 +6,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 import handlers  # need import if we want to register our handlers
 from settings import ADMIN_LIST, ACCESS_TOKEN_LIFETIME
-from loader import auth, bot, dp
+from loader import auth, bot, dp, bot_commands
 
 logging.basicConfig(level=logging.INFO)
 
@@ -25,17 +25,13 @@ async def on_startup(dispatcher: Dispatcher) -> None:
     :return: None
     """
     await auth.auth_user()
-    bot_commands = [
-        types.BotCommand(command="/start", description="Register,"),
-        types.BotCommand(command="/users", description="Show bot users."),
-    ]
+
     await bot.set_my_commands(bot_commands)
     for admin in ADMIN_LIST:
         try:
             await bot.send_message(chat_id=admin, text='Bot on startup.', )
         except exceptions.ChatNotFound as e:
-            # todo - create logger that write exception to file.
-            print(f'{admin} {e}'.lower())
+            logging.error(f'Can not send message to admin with ID {admin}. Exception: {e}')
     schedule_jobs()
 
 
