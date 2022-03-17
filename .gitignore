@@ -6,3 +6,4 @@ project.tasks.py
 *.sqlite3
 *.env
 .github
+*venv
