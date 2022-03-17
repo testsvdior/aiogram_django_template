@@ -1,4 +1,6 @@
+from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView, ListCreateAPIView
+from rest_framework.response import Response
 
 from telegram.models import TelegramUser
 from telegram import serializers
@@ -20,6 +22,19 @@ class TelegramUserListCreateAPIView(ListCreateAPIView):
                 return serializers.TelegramUserIDSerializer
             return serializers.TelegramUsersList
         return serializers.TelegramUserSerializer
+
+    def create(self, request, *args, **kwargs):
+        instance, created = TelegramUser.objects.update_or_create(
+            user_id=request.data['user_id'],
+            first_name=request.data['first_name'],
+        )
+        serializer = serializers.TelegramUserSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+        if created:
+            return Response(serializer.data, status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.data, status.HTTP_200_OK)
 
 
 class TelegramUserGetAPIView(RetrieveUpdateAPIView):
