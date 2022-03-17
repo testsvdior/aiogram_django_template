@@ -5,4 +5,4 @@ exclude =
   __pycache__,
   settings.py,
   manage.py,
-  .venv,
+  *venv,
