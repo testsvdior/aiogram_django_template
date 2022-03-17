@@ -25,22 +25,22 @@ class TestAPI(APITestCase, APIClient):
         return response.data['access']
 
     def test_get_telegram_user_list(self):
-        url = reverse('users-list')
+        url = reverse('list-create-user')
         token = self.get_jwt()
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializers.TelegramUsersList([self.tg_user], many=True).data)
+        self.assertEqual(response.data, serializers.TelegramUserSerializer([self.tg_user], many=True).data)
 
     def test_get_telegram_user_list_negative(self):
-        url = reverse('users-list')
+        url = reverse('list-create-user')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_post_telegram_user(self):
-        url = reverse('create-user')
+        url = reverse('list-create-user')
         token = self.get_jwt()
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
         data = {
@@ -55,7 +55,7 @@ class TestAPI(APITestCase, APIClient):
         self.assertEqual(response.data['first_name'], data['first_name'])
 
     def test_post_telegram_user_negative(self):
-        url = reverse('create-user')
+        url = reverse('list-create-user')
         data = {
             'user_id': 2,
             'first_name': 'Nooh',
