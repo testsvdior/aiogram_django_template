@@ -1,6 +1,6 @@
 import logging
 
-from aiogram import Dispatcher, executor, types
+from aiogram import Dispatcher, executor
 from aiogram.utils import exceptions
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
