@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, Union, List
 from asyncio import sleep
 
@@ -138,4 +139,8 @@ async def state_message(message: types.Message, state: FSMContext):
         if await send_message(user_id=user['user_id'], message=message):
             count += 1
     for admin in ADMIN_LIST:
-        await bot.send_message(admin, text=f'Sent {count} of {len(users_data)} messages.')
+        try:
+            notify_admin_text = f'Sent {count} of {len(users_data)} messages.'
+            await bot.send_message(admin, text=notify_admin_text, reply_markup=await get_exit_keyboard())
+        except exceptions.ChatNotFound as _:
+            logging.error(f'Chat {admin} not found.')
