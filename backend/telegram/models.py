@@ -8,7 +8,6 @@ class TelegramUser(models.Model):
     first_name = models.CharField(max_length=256)
     last_name = models.CharField(max_length=256, null=True, blank=True)
     language_code = models.CharField(max_length=8, help_text="Telegram client's lang", null=True, blank=True)
-    deep_link = models.CharField(max_length=64, null=True, blank=True)
 
     is_blocked_bot = models.BooleanField(default=False)
     is_banned = models.BooleanField(default=False)
@@ -28,6 +27,6 @@ class TelegramUser(models.Model):
     def __str__(self):
         return self.username if self.username else str(self.user_id)
 
-    def save(self, *args, **kwargs):
-        self.deep_link = f't.me/{self.username}' if self.username else None
-        super().save(*args, **kwargs)
+    @property
+    def deep_link(self):
+        return f't.me/{self.username}' if self.username else None

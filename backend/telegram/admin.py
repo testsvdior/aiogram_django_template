@@ -24,8 +24,8 @@ def unlock_selected_users(model_admin: UserAdmin, request: WSGIRequest, queryset
 @admin.register(TelegramUser)
 class UserAdmin(admin.ModelAdmin):
     list_display = [
-        'user_id', 'username', 'first_name', 'language_code', 'created_at', "is_blocked_bot", 'is_banned',
+        'user_id', 'username', 'first_name', 'language_code', 'created_at', "is_blocked_bot", 'is_banned', 'deep_link'
     ]
     list_filter = ["is_blocked_bot", "is_moderator"]
-    search_fields = ('username', 'user_id')
+    search_fields = ('first_name', 'last_name', 'username', 'user_id')
     actions = [block_selected_users, unlock_selected_users]
