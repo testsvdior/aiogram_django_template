@@ -32,14 +32,15 @@ async def get_exit_keyboard() -> InlineKeyboardMarkup:
     return keyboard
 
 
-async def get_user_detail_keyboard():
+async def get_user_detail_keyboard(is_banned: bool):
     """
     Function return keyboard for user detail flow.
     """
+    block = '⭕️UNLOCK' if is_banned else '⛔️BLOCK'
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
                 [InlineKeyboardButton(text='SEND MESSAGE', callback_data='message')],
-                [InlineKeyboardButton(text='BLOCK', callback_data='block')],
+                [InlineKeyboardButton(text=block, callback_data='block')],
                 [InlineKeyboardButton(text='EXIT', callback_data='exit')],
         ]
     )

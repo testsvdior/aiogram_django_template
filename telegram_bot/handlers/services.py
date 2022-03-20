@@ -1,6 +1,6 @@
 import logging
 from asyncio import sleep
-from typing import Dict
+from typing import Dict, Tuple
 
 from aiogram import types
 from aiogram.utils import exceptions
@@ -8,17 +8,17 @@ from aiogram.dispatcher import FSMContext
 
 from handlers.exceptions import CommandArgumentError
 from keyboards.inline import get_paginate_keyboard
-from requests import get_user_detail, get_users
+from requests import get_user_detail_query, get_users_query
 from utils import prepare_user_detail, prepare_users_list
 
 
-async def get_detail_info(user_id: str) -> str:
+async def get_detail_info(user_id: str) -> Tuple[str, bool]:
     """Function return user detail data."""
     if not user_id.isdigit():
         raise CommandArgumentError
-    result = await get_user_detail(user_id=user_id)
-    answer = await prepare_user_detail(result)
-    return answer
+    result = await get_user_detail_query(user_id=user_id)
+    answer, is_banned = await prepare_user_detail(result)
+    return answer, is_banned
 
 
 async def send_message(user_id: int, message: types.Message) -> bool:
@@ -63,7 +63,7 @@ async def send_users(message: types.Message, state: FSMContext, payload: Dict = 
     :param payload: data for paginate users-list.
     """
     state_data: Dict = await state.get_data()
-    data = await get_users(payload=payload)
+    data = await get_users_query(payload=payload)
     if data['count'] == 0:
         await message.answer('We don\'t have any users.')
     else:

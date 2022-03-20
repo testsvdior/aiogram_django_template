@@ -8,7 +8,7 @@ from aiogram.utils import exceptions
 
 from handlers.services import get_detail_info, send_message, send_users
 from loader import dp, bot
-from requests import get_users, block_user_query
+from requests import get_users_query, block_user_query
 from settings import ADMIN_LIST
 from handlers.exceptions import CommandArgumentError, NotFound
 from keyboards.inline import get_exit_keyboard, get_user_detail_keyboard
@@ -68,9 +68,9 @@ async def cmd_user_detail(message: types.Message, state: FSMContext):
             user_id = message.text[1:]
         else:
             user_id: str = message.get_args()
-        answer = await get_detail_info(user_id=user_id)
-        await message.answer(answer, reply_markup=await get_user_detail_keyboard())
-        await state.set_data({'users_data': [{'user_id': user_id}]})
+        answer, is_banned = await get_detail_info(user_id=user_id)
+        await message.answer(answer, reply_markup=await get_user_detail_keyboard(is_banned))
+        await state.set_data({'users_data': [{'user_id': user_id, 'is_banned': is_banned}]})
     except exceptions.MessageTextIsEmpty:
         await message.answer("You didn't send user id!")
     except CommandArgumentError:
@@ -97,13 +97,19 @@ async def cmd_message(action: Union[types.Message, types.CallbackQuery], state: 
 
 @dp.callback_query_handler(lambda c: c.data == 'block', state='paginate')
 async def clb_block(call: types.CallbackQuery, state: FSMContext):
+    """
+    Handler using for block or unlock user.
+    """
     state_data: Dict = await state.get_data()
     user_id: int = state_data.get('users_data')[0]['user_id']
-    if await block_user_query(user_id):
-        await call.message.answer(f'User <code>{user_id}</code> is blocked.')
+    is_banned: bool = state_data.get('users_data')[0]['is_banned']
+    if await block_user_query(user_id, is_banned):
+        await call.message.edit_text(call.message.text, reply_markup=await get_user_detail_keyboard(not is_banned))
+        await call.answer()
+        await state.update_data({'users_data': [{'user_id': user_id, 'is_banned': not is_banned}]})
     else:
         await call.message.answer('An error has occurred')
-    await state.finish()
+        await state.finish()
 
 
 @dp.message_handler(state='message')
@@ -114,7 +120,7 @@ async def msg_state_message(message: types.Message, state: FSMContext):
         users_data: List[Dict[str, int]] = state_data.get('users_data')
         await state.set_state('paginate')
     else:
-        users_data: List[Dict[str, int]] = await get_users(payload={'only_id': 1})
+        users_data: List[Dict[str, int]] = await get_users_query(payload={'only_id': 1})
         await state.finish()
     count = 0
     for user in users_data:

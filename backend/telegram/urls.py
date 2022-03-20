@@ -4,5 +4,5 @@ from telegram import views
 
 urlpatterns = [
     path('users/', views.TelegramUserListCreateAPIView.as_view(), name='list-create-user'),
-    path('user/<int:pk>', views.TelegramUserGetAPIView.as_view(), name='user-detail'),
+    path('users/<int:pk>', views.TelegramUserGetAPIView.as_view(), name='user-detail'),
 ]
