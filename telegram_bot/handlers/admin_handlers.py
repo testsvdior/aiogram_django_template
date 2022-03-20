@@ -8,7 +8,7 @@ from aiogram.utils import exceptions
 
 from handlers.services import get_detail_info, send_message, send_users
 from loader import dp, bot
-from requests import get_users
+from requests import get_users, block_user_query
 from settings import ADMIN_LIST
 from handlers.exceptions import CommandArgumentError, NotFound
 from keyboards.inline import get_exit_keyboard, get_user_detail_keyboard
@@ -93,6 +93,17 @@ async def cmd_message(action: Union[types.Message, types.CallbackQuery], state: 
     else:
         await action.answer('\n'.join(answer), reply_markup=await get_exit_keyboard())
     await state.set_state('message')
+
+
+@dp.callback_query_handler(lambda c: c.data == 'block', state='paginate')
+async def clb_block(call: types.CallbackQuery, state: FSMContext):
+    state_data: Dict = await state.get_data()
+    user_id: int = state_data.get('users_data')[0]['user_id']
+    if await block_user_query(user_id):
+        await call.message.answer(f'User <code>{user_id}</code> is blocked.')
+    else:
+        await call.message.answer('An error has occurred')
+    await state.finish()
 
 
 @dp.message_handler(state='message')

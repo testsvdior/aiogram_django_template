@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, Union, List
 
 import aiohttp
@@ -54,3 +55,19 @@ async def get_user_detail(user_id: str) -> Dict:
             if response.status == 404:
                 raise NotFound
             return response_data
+
+
+async def block_user_query(user_id: int) -> bool:
+    """
+    PUT query to endpoint that block user.
+    :param user_id: Telegram user ID.
+    """
+    data = {'is_banned': 1}
+    async with aiohttp.ClientSession() as session:
+        async with session.patch(
+                BACKEND_URL + f'api/user/{user_id}',
+                headers=await auth.get_auth_header(),
+                data=data,
+        ) as response:
+            logging.info(f'Block query response status == {response.status}')
+            return True if response.status == 200 else False
