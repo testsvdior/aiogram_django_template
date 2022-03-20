@@ -8,7 +8,7 @@ from aiogram.utils import exceptions
 
 from handlers.services import get_detail_info, send_message, send_users
 from loader import dp, bot
-from requests import get_users, block_user_query
+from requests import get_users_query, block_user_query
 from settings import ADMIN_LIST
 from handlers.exceptions import CommandArgumentError, NotFound
 from keyboards.inline import get_exit_keyboard, get_user_detail_keyboard
@@ -114,7 +114,7 @@ async def msg_state_message(message: types.Message, state: FSMContext):
         users_data: List[Dict[str, int]] = state_data.get('users_data')
         await state.set_state('paginate')
     else:
-        users_data: List[Dict[str, int]] = await get_users(payload={'only_id': 1})
+        users_data: List[Dict[str, int]] = await get_users_query(payload={'only_id': 1})
         await state.finish()
     count = 0
     for user in users_data:
