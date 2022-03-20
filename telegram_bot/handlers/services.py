@@ -1,6 +1,6 @@
 import logging
 from asyncio import sleep
-from typing import Dict
+from typing import Dict, Tuple
 
 from aiogram import types
 from aiogram.utils import exceptions
@@ -12,13 +12,13 @@ from requests import get_user_detail_query, get_users_query
 from utils import prepare_user_detail, prepare_users_list
 
 
-async def get_detail_info(user_id: str) -> str:
+async def get_detail_info(user_id: str) -> Tuple[str, bool]:
     """Function return user detail data."""
     if not user_id.isdigit():
         raise CommandArgumentError
     result = await get_user_detail_query(user_id=user_id)
-    answer = await prepare_user_detail(result)
-    return answer
+    answer, is_banned = await prepare_user_detail(result)
+    return answer, is_banned
 
 
 async def send_message(user_id: int, message: types.Message) -> bool:
