@@ -1,4 +1,5 @@
-from typing import Dict, List
+import logging
+from typing import Dict, List, Tuple
 
 
 async def prepare_user_data(data: Dict) -> Dict[str, str]:
@@ -30,11 +31,12 @@ async def prepare_users_list(data: List) -> List:
     return users
 
 
-async def prepare_user_detail(data: Dict) -> str:
+async def prepare_user_detail(data: Dict) -> Tuple[str, bool]:
     """
     Function prepare user data for answer.
     :param data: User data.
     """
     answer = ['<b>User detail:</b>\n']
+    is_banned = data.pop('is_banned')
     answer.extend([f'<b>{key}</b>: <code>{value}</code>' for key, value in data.items()])
-    return '\n'.join(answer)
+    return '\n'.join(answer), is_banned
