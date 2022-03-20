@@ -97,14 +97,19 @@ async def cmd_message(action: Union[types.Message, types.CallbackQuery], state: 
 
 @dp.callback_query_handler(lambda c: c.data == 'block', state='paginate')
 async def clb_block(call: types.CallbackQuery, state: FSMContext):
+    """
+    Handler using for block or unlock user.
+    """
     state_data: Dict = await state.get_data()
     user_id: int = state_data.get('users_data')[0]['user_id']
     is_banned: bool = state_data.get('users_data')[0]['is_banned']
     if await block_user_query(user_id, is_banned):
-        await call.message.answer(f'User <code>{user_id}</code> is blocked.')
+        await call.message.edit_text(call.message.text, reply_markup=await get_user_detail_keyboard(not is_banned))
+        await call.answer()
+        await state.update_data({'users_data': [{'user_id': user_id, 'is_banned': not is_banned}]})
     else:
         await call.message.answer('An error has occurred')
-    await state.finish()
+        await state.finish()
 
 
 @dp.message_handler(state='message')
