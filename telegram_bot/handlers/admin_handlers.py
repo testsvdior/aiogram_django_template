@@ -6,41 +6,12 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.utils import exceptions
 
-from handlers.services import get_detail_info, send_message
+from handlers.services import get_detail_info, send_message, send_users
 from loader import dp, bot
-from requests import get_users
-from utils import prepare_users_list
+from requests import get_users, block_user_query
 from settings import ADMIN_LIST
 from handlers.exceptions import CommandArgumentError, NotFound
-from keyboards.inline import get_paginate_keyboard, get_exit_keyboard, get_user_detail_keyboard
-
-
-async def send_users(message: types.Message, state: FSMContext, payload: Dict = None):
-    """
-    Function return users-list from Backend.
-    Function set state 'paginate' for user.
-
-    :param message: Telegram message.
-    :param state: state that we create to user.
-    :param payload: data for paginate users-list.
-    """
-    state_data: Dict = await state.get_data()
-    data = await get_users(payload=payload)
-    if data['count'] == 0:
-        await message.answer('We don\'t have any users.')
-    else:
-        users = await prepare_users_list(data=data['results'])
-        message_data = {
-            'text': '\n'.join(users),
-            'reply_markup': await get_paginate_keyboard(next_page=data['next'], previous_page=data['previous']),
-        }
-        if state_data.get('edit', False):
-            await message.edit_text(**message_data)
-        else:
-            await message.answer(f'Count of users: {data["count"]}')
-            await message.answer(**message_data)
-        await state.set_data({'edit': True})
-        await state.set_state('paginate')
+from keyboards.inline import get_exit_keyboard, get_user_detail_keyboard
 
 
 @dp.message_handler(commands='users', user_id=ADMIN_LIST)
@@ -54,7 +25,7 @@ async def cmd_users(message: types.Message, state: FSMContext):
 
 
 @dp.callback_query_handler(lambda c: c.data.startswith('page'), state='paginate')
-async def users_paginate(call: types.CallbackQuery, state: FSMContext):
+async def clb_users_paginate(call: types.CallbackQuery, state: FSMContext):
     """
     This handler will be called when user touch inline keyboards from message with paginate.
     :param call: Telegram callback query with data that startswith "page".
@@ -68,7 +39,7 @@ async def users_paginate(call: types.CallbackQuery, state: FSMContext):
 
 
 @dp.callback_query_handler(lambda c: c.data == 'exit', state='*')
-async def exit_from_state(call: types.CallbackQuery, state: FSMContext):
+async def clb_exit_from_state(call: types.CallbackQuery, state: FSMContext):
     """Function exit user from any state.
     :param call: Telegram callback query with data "exit".
     :param state: state.
@@ -115,7 +86,7 @@ async def cmd_message(action: Union[types.Message, types.CallbackQuery], state: 
         'Send me message, that you want to send users.',
         'To cancel click the button below',
     ]
-    # проверяем это келбек или сообщение
+    # checking action is callback or message
     if isinstance(action, types.CallbackQuery):
         await action.message.delete_reply_markup()
         await action.message.answer('\n'.join(answer), reply_markup=await get_exit_keyboard())
@@ -124,8 +95,19 @@ async def cmd_message(action: Union[types.Message, types.CallbackQuery], state: 
     await state.set_state('message')
 
 
+@dp.callback_query_handler(lambda c: c.data == 'block', state='paginate')
+async def clb_block(call: types.CallbackQuery, state: FSMContext):
+    state_data: Dict = await state.get_data()
+    user_id: int = state_data.get('users_data')[0]['user_id']
+    if await block_user_query(user_id):
+        await call.message.answer(f'User <code>{user_id}</code> is blocked.')
+    else:
+        await call.message.answer('An error has occurred')
+    await state.finish()
+
+
 @dp.message_handler(state='message')
-async def state_message(message: types.Message, state: FSMContext):
+async def msg_state_message(message: types.Message, state: FSMContext):
     await message.answer('Starting to send messages.')
     if await state.get_data('users_data'):
         state_data: Dict = await state.get_data()

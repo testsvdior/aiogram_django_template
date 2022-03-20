@@ -1,12 +1,15 @@
 import logging
 from asyncio import sleep
+from typing import Dict
 
 from aiogram import types
 from aiogram.utils import exceptions
+from aiogram.dispatcher import FSMContext
 
 from handlers.exceptions import CommandArgumentError
-from requests import get_user_detail
-from utils import prepare_user_detail
+from keyboards.inline import get_paginate_keyboard
+from requests import get_user_detail, get_users
+from utils import prepare_user_detail, prepare_users_list
 
 
 async def get_detail_info(user_id: str) -> str:
@@ -48,3 +51,31 @@ async def send_message(user_id: int, message: types.Message) -> bool:
         return True
 
     return False
+
+
+async def send_users(message: types.Message, state: FSMContext, payload: Dict = None):
+    """
+    Function return users-list from Backend.
+    Function set state 'paginate' for user.
+
+    :param message: Telegram message.
+    :param state: state that we create to user.
+    :param payload: data for paginate users-list.
+    """
+    state_data: Dict = await state.get_data()
+    data = await get_users(payload=payload)
+    if data['count'] == 0:
+        await message.answer('We don\'t have any users.')
+    else:
+        users = await prepare_users_list(data=data['results'])
+        message_data = {
+            'text': '\n'.join(users),
+            'reply_markup': await get_paginate_keyboard(next_page=data['next'], previous_page=data['previous']),
+        }
+        if state_data.get('edit', False):
+            await message.edit_text(**message_data)
+        else:
+            await message.answer(f'Count of users: {data["count"]}')
+            await message.answer(**message_data)
+        await state.set_data({'edit': True})
+        await state.set_state('paginate')
