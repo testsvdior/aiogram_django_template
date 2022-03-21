@@ -10,6 +10,8 @@ services:
     command: bash -c 'python manage.py migrate; python manage.py loaddata fixtures/data.json; python manage.py runserver 0.0.0.0:8000'
     ports:
       - 8000:8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings.develop
 
   aiogram:
     container_name: bot
