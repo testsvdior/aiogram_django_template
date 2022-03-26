@@ -1,11 +1,12 @@
 import logging
 from asyncio import sleep
-from typing import Dict, Tuple
+from typing import Dict, Tuple, Union
 
 from aiogram import types
 from aiogram.utils import exceptions
 from aiogram.dispatcher import FSMContext
 
+from loader import bot
 from handlers.exceptions import CommandArgumentError
 from keyboards.inline import get_paginate_keyboard
 from requests import get_user_detail_query, get_users_query
@@ -21,14 +22,17 @@ async def get_detail_info(user_id: str) -> Tuple[str, bool]:
     return answer, is_banned
 
 
-async def send_message(user_id: int, message: types.Message) -> bool:
+async def send_message(user_id: int, message: Union[types.Message, str]) -> bool:
     """
     Function send message message copy to Telegram bot user.
     :param user_id: ID of Telegram user.
     :param message: aiogram.types.Message that we will send to user.
     """
     try:
-        await message.send_copy(user_id)
+        if isinstance(message, types.Message):
+            await message.send_copy(user_id)
+        else:
+            await bot.send_message(chat_id=user_id, text=message)
     except exceptions.BotBlocked:
         logging.error(f"Target [ID:{user_id}]: blocked by user")
 
