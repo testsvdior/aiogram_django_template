@@ -1,10 +1,10 @@
 import logging
 
 from aiogram import Dispatcher, executor
-from aiogram.utils import exceptions
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 import handlers  # need import if we want to register our handlers
+from handlers.services import send_message
 from settings import ADMIN_LIST, ACCESS_TOKEN_LIFETIME
 from loader import auth, bot, dp, bot_commands
 
@@ -28,10 +28,7 @@ async def on_startup(dispatcher: Dispatcher) -> None:
 
     await bot.set_my_commands(bot_commands)
     for admin in ADMIN_LIST:
-        try:
-            await bot.send_message(chat_id=admin, text='Bot on startup.', )
-        except exceptions.ChatNotFound as e:
-            logging.error(f'Can not send message to admin with ID {admin}. Exception: {e}')
+        await send_message(admin, message='Bot on startup.')
     schedule_jobs()
 
 
