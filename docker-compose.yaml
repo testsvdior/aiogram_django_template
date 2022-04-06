@@ -12,6 +12,8 @@ services:
       - 8000:8000
     environment:
       - DJANGO_SETTINGS_MODULE=core.settings.develop
+    env_file:
+      - backend/.env
 
   aiogram:
     container_name: bot
