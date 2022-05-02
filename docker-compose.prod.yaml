@@ -1,0 +1,40 @@
+version: '3.3'
+services:
+  django:
+    container_name: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    volumes:
+      - ./backend:/django
+      - static_volume:/django/staticfiles
+    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
+    expose:
+      - 8000
+    environment:
+      - DJANGO_SETTINGS_MODULE=core.settings.develop
+
+  aiogram:
+    container_name: bot
+    build:
+      context: telegram_bot
+      dockerfile: Dockerfile
+    environment:
+      - BACKEND_URL=http://django:8000/
+    env_file:
+      - telegram_bot/.env
+    depends_on:
+      - django
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - 80:80
+    depends_on:
+      - django
+    volumes:
+      - static_volume:/django/staticfiles
+
+volumes:
+  static_volume:
