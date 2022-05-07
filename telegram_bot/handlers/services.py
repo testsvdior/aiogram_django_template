@@ -9,7 +9,7 @@ from aiogram.dispatcher import FSMContext
 from loader import bot
 from handlers.exceptions import CommandArgumentError
 from keyboards.inline import get_paginate_keyboard
-from requests import get_user_detail_query, get_users_query
+from requests import User
 from utils import prepare_user_detail, prepare_users_list
 
 
@@ -17,7 +17,7 @@ async def get_detail_info(user_id: str) -> Tuple[str, bool]:
     """Function return user detail data."""
     if not user_id.isdigit():
         raise CommandArgumentError
-    result = await get_user_detail_query(user_id=user_id)
+    result = await User.get_user_detail_query(user_id=user_id)
     answer, is_banned = await prepare_user_detail(result)
     return answer, is_banned
 
@@ -67,7 +67,7 @@ async def send_users(message: types.Message, state: FSMContext, payload: Dict = 
     :param payload: data for paginate users-list.
     """
     state_data: Dict = await state.get_data()
-    data = await get_users_query(payload=payload)
+    data = await User.get_users_query(payload=payload)
     if data['count'] == 0:
         await message.answer('We don\'t have any users.')
     else:
