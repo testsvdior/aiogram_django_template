@@ -10,7 +10,7 @@ from handlers.exceptions import NotFound
 
 class User:
     """Class that work with /users/ endpoint."""
-    prefix: str = 'api/users/'
+    prefix: str = 'users/'
     endpoint: str = BACKEND_URL + prefix
 
     @classmethod
