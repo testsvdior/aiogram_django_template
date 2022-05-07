@@ -1,6 +1,7 @@
 from django.urls import reverse
-from rest_framework.test import APITestCase, APIClient
 from django.contrib.auth import get_user_model
+
+from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
 from telegram.models import TelegramUser
@@ -25,7 +26,7 @@ class TestAPI(APITestCase, APIClient):
         return response.data['access']
 
     def test_get_telegram_user_list(self):
-        url = reverse('list-create-user')
+        url = reverse('list_create_user')
         token = self.get_jwt()
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
@@ -35,12 +36,12 @@ class TestAPI(APITestCase, APIClient):
         self.assertEqual(response.data, serializers.TelegramUserSerializer([self.tg_user], many=True).data)
 
     def test_get_telegram_user_list_negative(self):
-        url = reverse('list-create-user')
+        url = reverse('list_create_user')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_post_telegram_user(self):
-        url = reverse('list-create-user')
+        url = reverse('list_create_user')
         token = self.get_jwt()
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
         data = {
@@ -55,7 +56,7 @@ class TestAPI(APITestCase, APIClient):
         self.assertEqual(response.data['first_name'], data['first_name'])
 
     def test_post_telegram_user_negative(self):
-        url = reverse('list-create-user')
+        url = reverse('list_create_user')
         data = {
             'user_id': 2,
             'first_name': 'Nooh',
@@ -66,7 +67,7 @@ class TestAPI(APITestCase, APIClient):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_telegram_user_detail(self):
-        url = reverse('user-detail', kwargs={'pk': self.tg_user.user_id})
+        url = reverse('user_detail', kwargs={'pk': self.tg_user.user_id})
         token = self.get_jwt()
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
 
@@ -76,6 +77,6 @@ class TestAPI(APITestCase, APIClient):
         self.assertEqual(response.data, serializers.TelegramUserDetailSerializer(self.tg_user).data)
 
     def test_get_telegram_user_detail_negative(self):
-        url = reverse('user-detail', kwargs={'pk': self.tg_user.user_id})
+        url = reverse('user_detail', kwargs={'pk': self.tg_user.user_id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
