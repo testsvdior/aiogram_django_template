@@ -10,7 +10,7 @@ from loader import auth, bot, dp, bot_commands
 
 logging.basicConfig(level=logging.INFO)
 
-scheduler = AsyncIOScheduler()
+scheduler = AsyncIOScheduler(timezone="Europe/Moscow")
 
 
 def schedule_jobs() -> None:
