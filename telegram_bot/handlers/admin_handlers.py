@@ -7,7 +7,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.utils import exceptions
 
 from handlers.services import get_detail_info, send_message, send_users
-from loader import dp, bot
+from loader import dp
 from requests import User
 from settings import ADMIN_LIST
 from handlers.exceptions import CommandArgumentError, NotFound
@@ -21,6 +21,7 @@ async def cmd_users(message: types.Message, state: FSMContext):
     :param message: Telegram message with "/users" command.
     :param state: state that we create to user.
     """
+    logging.info(f'User [ID:{message.from_user.id}]: /users command')
     await send_users(message, state=state, payload={'page_size': 10, 'p': 1})
 
 
@@ -31,6 +32,7 @@ async def clb_users_paginate(call: types.CallbackQuery, state: FSMContext):
     :param call: Telegram callback query with data that startswith "page".
     :param state: state that we create to user.
     """
+    logging.info('clb_users_paginate')
     page = call.data.split('=')[1]
     if page.isdigit():
         await send_users(call.message, state=state, payload={'page_size': 10, 'p': page})
@@ -44,6 +46,7 @@ async def clb_exit_from_state(call: types.CallbackQuery, state: FSMContext):
     :param call: Telegram callback query with data "exit".
     :param state: state.
     """
+    logging.info('clb_exit_from_state')
     await state.finish()
     await call.message.delete_reply_markup()
     await call.answer('You are exit from state')
@@ -63,6 +66,7 @@ async def cmd_user_detail(message: types.Message, state: FSMContext):
     :param message: message with command from Telegram.
     :param state: FSMContext - we need write here user_id of current user.
     """
+    logging.info(f'User [ID:{message.from_user.id}]: /detail command')
     try:
         if message.text[1:].isdigit():
             user_id = message.text[1:]
@@ -82,6 +86,10 @@ async def cmd_user_detail(message: types.Message, state: FSMContext):
 @dp.callback_query_handler(lambda c: c.data == 'message', state='*')
 @dp.message_handler(commands='message', user_id=ADMIN_LIST)
 async def cmd_message(action: Union[types.Message, types.CallbackQuery], state: FSMContext) -> None:
+    """
+    Function used to send message to users.
+    """
+    logging.info(f'User [ID:{action.from_user.id}]: /message command')
     answer = [
         'Send me message, that you want to send users.',
         'To cancel click the button below',
@@ -100,6 +108,7 @@ async def clb_block(call: types.CallbackQuery, state: FSMContext):
     """
     Handler using for block or unlock user.
     """
+    logging.info('clb_block')
     state_data: Dict = await state.get_data()
     user_id: int = state_data.get('users_data')[0]['user_id']
     is_banned: bool = state_data.get('users_data')[0]['is_banned']
@@ -114,6 +123,7 @@ async def clb_block(call: types.CallbackQuery, state: FSMContext):
 
 @dp.message_handler(state='message')
 async def msg_state_message(message: types.Message, state: FSMContext):
+    logging.info('msg_state_message')
     await message.answer('Starting to send messages.')
     if await state.get_data('users_data'):
         state_data: Dict = await state.get_data()
@@ -127,8 +137,4 @@ async def msg_state_message(message: types.Message, state: FSMContext):
         if await send_message(user_id=user['user_id'], message=message):
             count += 1
     for admin in ADMIN_LIST:
-        try:
-            notify_admin_text = f'Sent {count} of {len(users_data)} messages.'
-            await bot.send_message(admin, text=notify_admin_text, reply_markup=await get_exit_keyboard())
-        except exceptions.ChatNotFound as _:
-            logging.error(f'Chat {admin} not found.')
+        await send_message(user_id=admin, message=f'Sent {count} of {len(users_data)} messages.')

@@ -6,3 +6,5 @@ exclude =
   settings.py,
   manage.py,
   *venv,
+  main.py,
+  backend/core/settings/,

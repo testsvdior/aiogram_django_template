@@ -1,3 +1,4 @@
+import logging
 from typing import Dict
 
 import aiohttp
@@ -31,6 +32,11 @@ class AuthBackend:
             async with session.post(self._refresh_token_url, data=data) as response:
                 assert response.status, 200
                 credentials = await response.json()
+                if not credentials.get('access', None):
+                    logging.info('Refresh token is expired')
+                    await self.auth_user()
+                    return
+
                 self._access_token = credentials['access']
 
     async def get_auth_header(self) -> Dict[str, str]:
