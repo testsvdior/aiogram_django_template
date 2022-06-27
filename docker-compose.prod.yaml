@@ -1,40 +1,63 @@
-version: '3.3'
+version: "3"
+
 services:
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    restart: always
+    ports:
+      - ${PUB_PORT}:80
+    volumes:
+      - static_volume:/var/www/static
+      - media_volume:/var/www/media
+    depends_on:
+      - django
+
   django:
-    container_name: backend
     build:
       context: ./backend
       dockerfile: Dockerfile.prod
+    container_name: backend
+    restart: always
+    env_file:
+      - ./.env
     volumes:
-      - ./backend:/django
       - static_volume:/django/staticfiles
-    command: gunicorn core.wsgi:application --bind 0.0.0.0:8000
-    expose:
-      - 8000
-    environment:
-      - DJANGO_SETTINGS_MODULE=core.settings.develop
+      - media_volume:/django/mediafiles
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   aiogram:
-    container_name: bot
     build:
-      context: telegram_bot
+      context: ./telegram_bot
       dockerfile: Dockerfile
-    environment:
-      - BACKEND_URL=http://django:8000/
+    container_name: telegram_bot
+    restart: always # crash: not found token
+    command: ["python", "main.py"]
     env_file:
-      - telegram_bot/.env
+      - ./telegram_bot/.env
     depends_on:
       - django
 
-  nginx:
-    container_name: nginx
-    build: ./nginx
-    ports:
-      - 80:80
-    depends_on:
-      - django
+  postgres:
+    image: postgres:13.0-alpine
+    container_name: project_db
     volumes:
-      - static_volume:/django/staticfiles
+      - postgres_volume:/var/lib/postgresql
+    ports:
+      - 54321:5432
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD","pg_isready", "--username=${POSTGRES_USER}","-d", "{POSTGRES_DB}"]
 
 volumes:
+  postgres_volume:
   static_volume:
+  media_volume:

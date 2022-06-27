@@ -5,4 +5,4 @@ prune:
 up:
 	docker-compose -f docker-compose.prod.yaml up -d
 down:
-	docker-compose -f docker-compose.prod.yaml down -v
+	docker-compose -f docker-compose.prod.yaml down
