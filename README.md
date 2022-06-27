@@ -22,9 +22,11 @@
 
      *(REQUEST_USER_LOGIN, REQUEST_USER_PASSWORD, ACCESS_TOKEN_LIFETIME) - можне не трогать.*
 
-3. Переименуйте файл `backend/.env.dist` на `.env` и заполните в нем переменные.
+3. Переименуйте файл `.env.dist` на `.env` и заполните в нем переменные.
 
-4. `make build` или `docker-compose build && docker-compose up`
+4. `make build` 
+
+4. `make up`
 
 5. Если на id пользователей которых вы указали в переменной ADMIN_LIST придет сообщение то проект успешно запущен!
 

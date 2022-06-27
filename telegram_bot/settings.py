@@ -17,7 +17,7 @@ BOT_TOKEN: str = env('BOT_TOKEN')
 ADMIN_LIST: List = env.list('ADMIN_LIST')
 
 # if we run with Docker we user env BACKEND_URL from docker-compose, else use default address.
-BACKEND_URL: str = env('BACKEND_URL', default='http://localhost:8000/')
+BACKEND_URL: str = env('BACKEND_URL', default='http://django:8000/')
 
 # authentication credentials
 REQUEST_USER_LOGIN: str = env('REQUEST_USER_LOGIN')

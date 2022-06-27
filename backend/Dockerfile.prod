@@ -2,21 +2,29 @@ FROM python:3.8.5
 
 WORKDIR /django
 
+# add user
+RUN addgroup app && useradd -g app app
+
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Copy only requirements to cache them in docker layer
 RUN pip install --upgrade pip
-COPY ./requirements.txt /django/
+COPY ./requirements.txt .
 RUN pip install -r requirements.txt
 
 COPY entrypoint.prod.sh .
 RUN sed -i 's/\r$//g' /django/entrypoint.prod.sh
 RUN chmod +x /django/entrypoint.prod.sh
+RUN mkdir staticfiles mediafiles
 
 # Creating folders, and files for a project:
 COPY . .
+
+# change user and here permission to application
+RUN chown -R app:app /django
+USER app
 
 # run entrypoint.sh
 ENTRYPOINT ["/django/entrypoint.prod.sh"]
