@@ -1,4 +1,4 @@
-version: "3"
+version: "2.2"
 
 services:
 
@@ -47,7 +47,7 @@ services:
     image: postgres:13.0-alpine
     container_name: project_db
     volumes:
-      - postgres_volume:/var/lib/postgresql
+      - postgres_volume:/var/lib/postgresql/data
     ports:
       - 54321:5432
     environment:
