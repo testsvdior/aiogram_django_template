@@ -1,11 +1,11 @@
 # common settings for develop and product environments
-
 import os
 from pathlib import Path
 from datetime import timedelta
 
 import environ
 
+IS_DOCKER = os.environ.get("IS_DOCKER", False)
 
 env = environ.Env(
     # set casting, default value
@@ -15,8 +15,14 @@ env = environ.Env(
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+if IS_DOCKER:
+    ENV_DIR = BASE_DIR
+else:
+    ENV_DIR = BASE_DIR.parent
+
+
 # Take environment variables from .env file
-environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+environ.Env.read_env(os.path.join(ENV_DIR, '.env'))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
@@ -147,9 +153,10 @@ REST_FRAMEWORK = {
     ),
 }
 
+ACCESS_TOKEN_LIFETIME = env.int('ACCESS_TOKEN_LIFETIME')
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=ACCESS_TOKEN_LIFETIME),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': False,
     'BLACKLIST_AFTER_ROTATION': False,

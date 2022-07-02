@@ -24,6 +24,8 @@ services:
     restart: always
     env_file:
       - ./.env
+    environment:
+      - IS_DOCKER=True
     volumes:
       - static_volume:/django/staticfiles
       - media_volume:/django/mediafiles
@@ -39,7 +41,9 @@ services:
     restart: always # crash: not found token
     command: ["python", "main.py"]
     env_file:
-      - ./telegram_bot/.env
+      - ./.env
+    environment:
+      - IS_DOCKER=True
     depends_on:
       - django
 

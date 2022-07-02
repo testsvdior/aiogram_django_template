@@ -1,4 +1,4 @@
-# develop settings module
+# production settings module
 
 from .common import *
 
