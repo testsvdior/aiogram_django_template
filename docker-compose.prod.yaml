@@ -52,6 +52,8 @@ services:
     container_name: project_db
     volumes:
       - postgres_volume:/var/lib/postgresql/data
+    depends_on:
+      - redis
     ports:
       - 54321:5432
     environment:
@@ -61,7 +63,18 @@ services:
     healthcheck:
       test: ["CMD","pg_isready", "--username=${POSTGRES_USER}","-d", "{POSTGRES_DB}"]
 
+  redis:
+    image: redis:5-alpine
+    container_name: redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    ports:
+      - ${REDIS_PORT}:6379
+
+
 volumes:
   postgres_volume:
   static_volume:
   media_volume:
+  redis_data:

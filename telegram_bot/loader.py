@@ -1,12 +1,12 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
 from auth import AuthBackend
-from settings import BOT_TOKEN
+from settings import BOT_TOKEN, REDIS_HOST, REDIS_PORT
 
 auth = AuthBackend()
 
-storage = MemoryStorage()
+storage = RedisStorage2(host=REDIS_HOST, port=REDIS_PORT)
 
 # Initialize bot and dispatcher
 bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
