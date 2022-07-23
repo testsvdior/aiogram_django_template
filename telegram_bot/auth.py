@@ -30,7 +30,6 @@ class AuthBackend:
         data = {"refresh": self._refresh_token}
         async with aiohttp.ClientSession() as session:
             async with session.post(self._refresh_token_url, data=data) as response:
-                assert response.status, 200
                 credentials = await response.json()
                 if not credentials.get('access', None):
                     logging.info('Refresh token is expired')
