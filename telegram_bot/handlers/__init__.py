@@ -1,7 +1,7 @@
-from . import admin_handlers
 from . import default
+from . import admin
 
 __all__ = [
-    'admin_handlers',
+    'admin',
     'default',
 ]
