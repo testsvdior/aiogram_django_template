@@ -31,3 +31,8 @@ REQUEST_USER_PASSWORD: str = env('ADMIN_PASSWORD')
 
 # JWT settings
 ACCESS_TOKEN_LIFETIME: int = env.int('ACCESS_TOKEN_LIFETIME') - 1
+
+
+# REDIS
+REDIS_HOST: str = env('REDIS_HOST')
+REDIS_PORT: int = env.int('REDIS_PORT')
