@@ -64,7 +64,7 @@ services:
       test: ["CMD","pg_isready", "--username=${POSTGRES_USER}","-d", "{POSTGRES_DB}"]
 
   redis:
-    image: redis:5-alpine
+    image: redis:6.2-alpine
     container_name: redis
     restart: always
     volumes:
