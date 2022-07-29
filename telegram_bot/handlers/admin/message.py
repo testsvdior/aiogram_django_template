@@ -43,6 +43,11 @@ async def msg_state_message(message: types.Message, state: FSMContext):
         users_data: List[Dict[str, int]] = await User.get_users_query(payload={'only_id': 1})
         await state.finish()
     count = 0
+    if not users_data:
+        await message.answer('No users found.')
+        await state.set_state()
+        return
+
     for user in users_data:
         if await send_message(user_id=user['user_id'], message=message):
             count += 1

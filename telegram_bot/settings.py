@@ -22,7 +22,7 @@ environ.Env.read_env(BOT_DIR / '.env')
 BOT_TOKEN: str = env('BOT_TOKEN')
 ADMIN_LIST: List = env.list('ADMIN_LIST')
 
-default_backend_value = "http://django:8000/" if IS_DOCKER else "http://localhost:8000/"
+default_backend_value = "http://django:8000/" if IS_DOCKER else "http://localhost/"
 BACKEND_URL: str = env('BACKEND_URL', default=default_backend_value)
 
 # authentication credentials
@@ -34,5 +34,5 @@ ACCESS_TOKEN_LIFETIME: int = env.int('ACCESS_TOKEN_LIFETIME') - 1
 
 
 # REDIS
-REDIS_HOST: str = env('REDIS_HOST')
-REDIS_PORT: int = env.int('REDIS_PORT')
+REDIS_HOST: str = env('REDIS_HOST', default='localhost')
+REDIS_PORT: int = env.int('REDIS_PORT', default=6379)
