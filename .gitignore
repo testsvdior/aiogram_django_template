@@ -7,3 +7,4 @@ project.tasks.py
 *.env
 .github
 *venv
+redis/redis_data
