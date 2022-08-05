@@ -8,3 +8,4 @@ project.tasks.py
 .github
 *venv
 redis/redis_data
+*.rdb
