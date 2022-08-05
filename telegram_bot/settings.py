@@ -22,7 +22,7 @@ environ.Env.read_env(BOT_DIR / '.env')
 BOT_TOKEN: str = env('BOT_TOKEN')
 ADMIN_LIST: List = env.list('ADMIN_LIST')
 
-default_backend_value = "http://django:8000/" if IS_DOCKER else "http://localhost:8000/"
+default_backend_value = "http://django:8000/" if IS_DOCKER else "http://localhost/"
 BACKEND_URL: str = env('BACKEND_URL', default=default_backend_value)
 
 # authentication credentials
