@@ -34,5 +34,6 @@ ACCESS_TOKEN_LIFETIME: int = env.int('ACCESS_TOKEN_LIFETIME') - 1
 
 
 # REDIS
-REDIS_HOST: str = env('REDIS_HOST', default='localhost')
-REDIS_PORT: int = env.int('REDIS_PORT', default=6379)
+REDIS_HOST: str = env('REDIS_HOST')
+REDIS_PORT: int = env.int('REDIS_PORT')
+REDIS_PASSWORD: str = env('REDIS_PASSWORD')
