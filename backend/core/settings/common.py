@@ -4,6 +4,8 @@ from pathlib import Path
 from datetime import timedelta
 
 import environ
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 IS_DOCKER = os.environ.get("IS_DOCKER", False)
 
@@ -196,3 +198,21 @@ SPECTACULAR_SETTINGS = {
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'REDOC_DIST': 'SIDECAR',
 }
+
+SENTRY_DSN = env.str('SENTRY_DSN_BACKEND')
+
+sentry_sdk.init(
+    dsn=SENTRY_DSN,
+    integrations=[
+        DjangoIntegration(),
+    ],
+
+    # Set traces_sample_rate to 1.0 to capture 100%
+    # of transactions for performance monitoring.
+    # We recommend adjusting this value in production.
+    traces_sample_rate=1.0,
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=False
+)
