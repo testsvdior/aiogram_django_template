@@ -7,6 +7,9 @@ up:
 down:
 	docker-compose -f docker-compose.prod.yaml down
 
+backend-exec:
+	docker exec -ti backend /bin/bash
+
 redis-exec:
 	docker exec -ti redis /bin/bash
 redis-logs:
