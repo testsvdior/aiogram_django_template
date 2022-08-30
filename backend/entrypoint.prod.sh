@@ -8,4 +8,4 @@ DJANGO_SUPERUSER_PASSWORD=$ADMIN_PASSWORD python manage.py createsuperuser --noi
 echo "*************************Collect static***************************"
 python manage.py collectstatic --noinput
 echo "*************************Collect static***************************"
-gunicorn core.wsgi:application --bind 0.0.0.0:8000
+gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --log-level=info --reload
