@@ -9,6 +9,8 @@ down:
 
 backend-exec:
 	docker exec -ti backend /bin/bash
+backend-logs:
+	docker logs backend --tail=100 -f
 
 redis-exec:
 	docker exec -ti redis /bin/bash

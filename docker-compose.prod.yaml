@@ -29,6 +29,7 @@ services:
     volumes:
       - static_volume:/django/staticfiles
       - media_volume:/django/mediafiles
+      - ./backend:/django # only for local development
     depends_on:
       postgres:
         condition: service_healthy

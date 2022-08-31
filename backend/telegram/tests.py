@@ -1,29 +1,19 @@
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 
-from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
+from tests.base import BaseTestCase
 from telegram.models import TelegramUser
 from telegram import serializers
 
 User = get_user_model()
 
 
-class TestAPI(APITestCase, APIClient):
+class TestAPI(BaseTestCase):
     def setUp(self):
-        self.User = get_user_model()
-        self.data = {
-            'username': 'first_user',
-            'password': 'foo',
-        }
-        self.user = self.User.objects.create_user(**self.data)
-        self.tg_user = TelegramUser.objects.create(user_id=1, first_name='Adam')
-
-    def get_jwt(self):
-        url = reverse('token_obtain_pair')
-        response = self.client.post(url, data=self.data)
-        return response.data['access']
+        super().setUp()
+        self.tg_user2 = TelegramUser.objects.create(user_id=300, first_name='Nooh')
 
     def test_get_telegram_user_list(self):
         url = reverse('list_create_user')
@@ -33,7 +23,7 @@ class TestAPI(APITestCase, APIClient):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, serializers.TelegramUserSerializer([self.tg_user], many=True).data)
+        self.assertEqual(response.data, serializers.TelegramUserSerializer(TelegramUser.objects.all(), many=True).data)
 
     def test_get_telegram_user_list_negative(self):
         url = reverse('list_create_user')
