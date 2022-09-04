@@ -1,16 +1,20 @@
+import logging
+
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 import sentry_sdk
 
 from auth import AuthBackend
-from settings import BOT_TOKEN, REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, SENTRY_DSN
+from settings import RedisSettings, SENTRY_DSN, get_bot_config
+
+bot_config = get_bot_config()
 
 auth = AuthBackend()
 
-storage = RedisStorage2(host=REDIS_HOST, port=REDIS_PORT, password=REDIS_PASSWORD)
+storage = RedisStorage2(host=RedisSettings.host, port=RedisSettings.port, password=RedisSettings.password)
 
 # Initialize bot and dispatcher
-bot = Bot(token=BOT_TOKEN, parse_mode='HTML')
+bot = Bot(token=bot_config.bot_token, parse_mode='HTML')
 dp = Dispatcher(bot, storage=storage)
 
 bot_commands = [
@@ -21,11 +25,15 @@ bot_commands = [
 ]
 
 
-sentry_sdk.init(
-    dsn=SENTRY_DSN,
+try:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
 
-    # Set traces_sample_rate to 1.0 to capture 100%
-    # of transactions for performance monitoring.
-    # We recommend adjusting this value in production.
-    traces_sample_rate=1.0
-)
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for performance monitoring.
+        # We recommend adjusting this value in production.
+        traces_sample_rate=1.0
+    )
+except Exception as e:
+    logging.error(e)
+    logging.info('Sentry not initialized')

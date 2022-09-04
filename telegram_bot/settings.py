@@ -1,15 +1,10 @@
-import os
 from pathlib import Path
-from typing import List
+from typing import List, Union
+from dataclasses import dataclass
 
 import environ
 
-IS_DOCKER = os.environ.get("IS_DOCKER", False)
-
-if IS_DOCKER:
-    BOT_DIR = Path(__file__).resolve().parent
-else:
-    BOT_DIR = Path(__file__).resolve().parent.parent
+ENV_DIR = Path(__file__).resolve().parent.parent
 
 
 # Initialize environ and get environments from .env file
@@ -17,27 +12,51 @@ env = environ.Env(
     # set casting, default value
     DEBUG=(bool, False),
 )
-environ.Env.read_env(BOT_DIR / '.env')
-
-BOT_TOKEN: str = env('BOT_TOKEN')
-ADMIN_LIST: List = env.list('ADMIN_LIST')
-
-default_backend_value = "http://django:8000/" if IS_DOCKER else "http://localhost/"
-BACKEND_URL: str = env('BACKEND_URL', default=default_backend_value)
-
-# authentication credentials
-REQUEST_USER_LOGIN: str = env('ADMIN_USERNAME')
-REQUEST_USER_PASSWORD: str = env('ADMIN_PASSWORD')
-
-# JWT settings
-ACCESS_TOKEN_LIFETIME: int = env.int('ACCESS_TOKEN_LIFETIME') - 1
+environ.Env.read_env(ENV_DIR / '.env')
 
 
-# REDIS
-REDIS_HOST: str = env('REDIS_HOST')
-REDIS_PORT: int = env.int('REDIS_PORT')
-REDIS_PASSWORD: str = env('REDIS_PASSWORD')
+# ADMIN_LIST: List = env.list('ADMIN_LIST')
+
+
+@dataclass(frozen=True)
+class BotSettings:
+    """Bot settings."""
+    bot_token: str
+    admin_list: List[Union[str, int]]
+
+    def __post_init__(self):
+        self.validate_admin_list()
+
+    def validate_admin_list(self):
+        """Method check that admin ids contain only digits."""
+        for admin_id in self.admin_list:
+            if not admin_id.isdigit():
+                raise ValueError(f'Admin id must contain only digits. Got {admin_id}')
+
+
+@dataclass(frozen=True)
+class BackendSettings:
+    """Backend settings."""
+    url: str = env('BACKEND_URL', default="http://django/")
+    username: str = env('ADMIN_USERNAME')
+    password: str = env('ADMIN_PASSWORD')
+    # JWT token lifetime in minutes
+    access_token_lifetime: int = env.int('ACCESS_TOKEN_LIFETIME') - 1
+
+
+@dataclass(frozen=True)
+class RedisSettings:
+    host: str = env('REDIS_HOST')
+    port: int = env.int('REDIS_PORT')
+    password: str = env('REDIS_PASSWORD')
 
 
 # SENTRY
 SENTRY_DSN: str = env('SENTRY_DSN_TELEGRAM')
+
+
+def get_bot_config() -> BotSettings:
+    return BotSettings(
+        bot_token=env('BOT_TOKEN'),
+        admin_list=env.list('ADMIN_LIST'),
+    )

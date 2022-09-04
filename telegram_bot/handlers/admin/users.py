@@ -4,11 +4,10 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from handlers.services import send_users
-from loader import dp
-from settings import ADMIN_LIST
+from loader import dp, bot_config
 
 
-@dp.message_handler(commands='users', user_id=ADMIN_LIST)
+@dp.message_handler(commands='users', user_id=bot_config.admin_list)
 async def cmd_users(message: types.Message, state: FSMContext):
     """
     This handler will be called when user sends `/users`
@@ -36,7 +35,8 @@ async def clb_users_paginate(call: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(lambda c: c.data == 'exit', state='*')
 async def clb_exit_from_state(call: types.CallbackQuery, state: FSMContext):
-    """Function exit user from any state.
+    """
+    Function exit user from any state.
     :param call: Telegram callback query with data "exit".
     :param state: state.
     """
