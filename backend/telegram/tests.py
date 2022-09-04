@@ -14,6 +14,7 @@ class TestAPI(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.tg_user2 = TelegramUser.objects.create(user_id=300, first_name='Nooh')
+        self.tg_admin_user = TelegramUser.objects.create(user_id=400, first_name='Admin', is_admin=True)
 
     def test_get_telegram_user_list(self):
         url = reverse('list_create_user')
@@ -70,3 +71,19 @@ class TestAPI(BaseTestCase):
         url = reverse('user_detail', kwargs={'pk': self.tg_user.user_id})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_get_telegram_admin_list(self):
+        """Test filter that return only admin users."""
+        url = reverse('list_create_user')
+        token = self.get_jwt()
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
+
+        response = self.client.get(url, {'is_admin': '1'})
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertEqual(len(response.data), TelegramUser.objects.filter(is_admin=True).count())
+        self.assertEqual(
+            response.data,
+            serializers.TelegramUsersList(TelegramUser.objects.filter(is_admin=True), many=True).data,
+        )

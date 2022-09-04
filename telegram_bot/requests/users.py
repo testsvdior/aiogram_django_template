@@ -3,7 +3,7 @@ from typing import Dict, Union, List
 
 import aiohttp
 
-from settings import BACKEND_URL
+from settings import BackendSettings
 from loader import auth
 from handlers.exceptions import NotFound
 
@@ -11,7 +11,7 @@ from handlers.exceptions import NotFound
 class User:
     """Class that work with /users/ endpoint."""
     prefix: str = 'users/'
-    endpoint: str = BACKEND_URL + prefix
+    endpoint: str = BackendSettings.url + prefix
 
     @classmethod
     async def create_user_query(cls, data: Dict) -> int:

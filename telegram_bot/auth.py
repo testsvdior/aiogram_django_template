@@ -3,19 +3,19 @@ from typing import Dict
 
 import aiohttp
 
-from settings import REQUEST_USER_LOGIN, REQUEST_USER_PASSWORD, BACKEND_URL
+from settings import BackendSettings
 
 
 class AuthBackend:
     def __init__(self):
         self._credentials: Dict[str, str] = {
-            'username': REQUEST_USER_LOGIN,
-            'password': REQUEST_USER_PASSWORD,
+            'username': BackendSettings.username,
+            'password': BackendSettings.password,
         }
         self._refresh_token: str = ''
         self._access_token: str = ''
-        self._token_url = BACKEND_URL + 'api/token/'
-        self._refresh_token_url = BACKEND_URL + 'api/token/refresh/'
+        self._token_url = BackendSettings.url + 'api/token/'
+        self._refresh_token_url = BackendSettings.url + 'api/token/refresh/'
 
     async def auth_user(self) -> None:
         """Method get and set auth token."""

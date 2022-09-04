@@ -1,10 +1,13 @@
 from rest_framework import status
 from rest_framework.generics import RetrieveUpdateAPIView, ListCreateAPIView
 from rest_framework.response import Response
+from django_filters import rest_framework as filters
 
 from telegram.models import TelegramUser
 from telegram import serializers
 from telegram.paginations import UsersPagination
+
+from .filters import FilterUsers
 
 
 class TelegramUserListCreateAPIView(ListCreateAPIView):
@@ -15,6 +18,8 @@ class TelegramUserListCreateAPIView(ListCreateAPIView):
     """
     queryset = TelegramUser.objects.all()
     pagination_class = UsersPagination
+    filter_backends = (filters.DjangoFilterBackend, )
+    filterset_class = FilterUsers
 
     def get_serializer_class(self):
         if self.request.GET:

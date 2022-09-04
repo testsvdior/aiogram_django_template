@@ -5,14 +5,13 @@ from aiogram.dispatcher import FSMContext
 from aiogram.utils import exceptions
 
 from handlers.services import get_detail_info
-from loader import dp
-from settings import ADMIN_LIST
+from loader import dp, bot_config
 from handlers.exceptions import CommandArgumentError, NotFound
 from keyboards.inline import get_user_detail_keyboard
 
 
 @dp.message_handler(lambda m: m.text.startswith('/'), state='paginate')
-@dp.message_handler(commands='detail', user_id=ADMIN_LIST)
+@dp.message_handler(commands='detail', user_id=bot_config.admin_list)
 async def cmd_user_detail(message: types.Message, state: FSMContext):
     """
     Handler return user detail info.

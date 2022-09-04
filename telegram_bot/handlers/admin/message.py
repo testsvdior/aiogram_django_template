@@ -5,14 +5,13 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 
 from handlers.services import send_message
-from loader import dp
+from loader import dp, bot_config
 from requests import User
-from settings import ADMIN_LIST
 from keyboards.inline import get_exit_keyboard
 
 
 @dp.callback_query_handler(lambda c: c.data == 'message', state='*')
-@dp.message_handler(commands='message', user_id=ADMIN_LIST)
+@dp.message_handler(commands='message', user_id=bot_config.admin_list)
 async def cmd_message(action: Union[types.Message, types.CallbackQuery], state: FSMContext) -> None:
     """
     Function used to send message to users.
@@ -52,5 +51,5 @@ async def msg_state_message(message: types.Message, state: FSMContext):
         if await send_message(user_id=user['user_id'], message=message):
             count += 1
     # notify admins about successfully sent messages
-    for admin in ADMIN_LIST:
+    for admin in bot_config.admin_list:
         await send_message(user_id=admin, message=f'Sent {count} of {len(users_data)} messages.')
